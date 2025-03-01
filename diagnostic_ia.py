@@ -1,73 +1,65 @@
 import streamlit as st
-import matplotlib.pyplot as plt
-import numpy as np
+import plotly.graph_objects as go
+import time
+from streamlit_lottie import st_lottie
 
 def evaluate_impact(task_automation, creativity, human_interaction, critical_thinking, data_usage):
     """
-    Fonction qui évalue l'exposition d'un métier à l'IA en fonction des critères donnés.
+    Calcule le score d'exposition d'un métier à l'IA en fonction des critères donnés.
     """
     score = (task_automation * 3) + (data_usage * 2) - (creativity * 2) - (human_interaction * 3) - (critical_thinking * 3)
     
     if score > 8:
-        return "🌐 Forte exposition : Votre métier est très exposé à l'IA. Une adaptation rapide est recommandée.", score
+        return "Forte exposition : Votre métier est très exposé à l'IA. Une adaptation rapide est recommandée.", score
     elif score > 4:
-        return "📊 Moyenne exposition : Certaines tâches seront automatisées, mais la dimension humaine reste clé.", score
+        return "Moyenne exposition : Certaines tâches seront automatisées, mais la dimension humaine reste clé.", score
     else:
-        return "🛠️ Faible exposition : Votre métier repose sur des compétences difficilement remplaçables par l'IA.", score
+        return "Faible exposition : Votre métier repose sur des compétences difficilement remplaçables par l'IA.", score
 
-def plot_chart(scores):
-    labels = ["Automatisation des tâches", "Créativité", "Interaction humaine", "Pensée critique", "Utilisation de données"]
-    angles = np.linspace(0, 2 * np.pi, len(labels), endpoint=False).tolist()
-    scores += scores[:1]  # Boucler le graphique
-    angles += angles[:1]
-    
-    fig, ax = plt.subplots(figsize=(6, 6), subplot_kw={"projection": "polar"})
-    ax.fill(angles, scores, color='blue', alpha=0.25)
-    ax.plot(angles, scores, color='blue', linewidth=2)
-    ax.set_yticklabels([])
-    ax.set_xticks(angles[:-1])
-    ax.set_xticklabels(labels)
-    st.pyplot(fig)
+def plot_radar_chart(scores):
+    labels = ["Automatisation", "Créativité", "Interaction humaine", "Pensée critique", "Utilisation de données"]
+    fig = go.Figure()
+    fig.add_trace(go.Scatterpolar(
+        r=scores + [scores[0]],
+        theta=labels + [labels[0]],
+        fill='toself',
+        line=dict(color='blue', width=2),
+        name='Score'
+    ))
+    fig.update_layout(polar=dict(radialaxis=dict(visible=True)), showlegend=False)
+    st.plotly_chart(fig, use_container_width=True)
 
-# Interface utilisateur avec Streamlit
-st.title("🔍 Diagnostic d'impact de l'IA sur votre métier")
+# Configuration de l'interface
+st.set_page_config(page_title="Impact IA", layout="wide")
+st.title("🔍 Diagnostic interactif de l'impact de l'IA sur votre métier")
 
-st.write("Répondez aux questions suivantes pour estimer à quel point votre métier est exposé à l'IA.")
+# Animation d'introduction
+st_lottie("https://assets9.lottiefiles.com/packages/lf20_t0hblxvz.json", speed=1, width=600, height=300, key="intro_animation")
+st.write("Découvrez à quel point votre métier est exposé à l'automatisation par l'IA.")
 
-st.subheader("Critères d'évaluation")
+st.subheader("📊 Répondez aux questions pour voir l'impact en temps réel")
 
-task_automation = st.slider("Automatisation des tâches : répétitivité, règles claires, structuration des données", 0, 10, 5)
-task_automation_ex1 = st.text_input("Exemple 1 (Automatisation des tâches)")
-task_automation_ex2 = st.text_input("Exemple 2 (Automatisation des tâches)")
+# Création des sliders avec mise à jour en temps réel
+task_automation = st.slider("Automatisation des tâches (ex : saisie de données, traitement comptable)", 0, 10, 5)
+creativity = st.slider("Créativité et innovation (ex : conception artistique, résolution de problèmes)", 0, 10, 5)
+human_interaction = st.slider("Interaction humaine (ex : service client, éducation, thérapie)", 0, 10, 5)
+critical_thinking = st.slider("Pensée critique et analyse (ex : décisions stratégiques, recherche)", 0, 10, 5)
+data_usage = st.slider("Utilisation de données (ex : analyse de tendances, reporting)", 0, 10, 5)
 
-creativity = st.slider("Créativité et innovation : originalité, prise de décisions non standardisées", 0, 10, 5)
-creativity_ex1 = st.text_input("Exemple 1 (Créativité)")
-creativity_ex2 = st.text_input("Exemple 2 (Créativité)")
+# Mise à jour du diagnostic en temps réel
+st.subheader("📌 Votre diagnostic en direct")
 
-human_interaction = st.slider("Interaction humaine : nécessité d’une présence physique, d’empathie ou de relations sociales", 0, 10, 5)
-human_interaction_ex1 = st.text_input("Exemple 1 (Interaction humaine)")
-human_interaction_ex2 = st.text_input("Exemple 2 (Interaction humaine)")
+# Barre de progression dynamique
+progress_bar = st.progress(0)
+for percent_complete in range(0, 101, 20):
+    time.sleep(0.1)
+    progress_bar.progress(percent_complete)
 
-critical_thinking = st.slider("Analyse et pensée critique : résolution de problèmes complexes, jugement humain nécessaire", 0, 10, 5)
-critical_thinking_ex1 = st.text_input("Exemple 1 (Pensée critique)")
-critical_thinking_ex2 = st.text_input("Exemple 2 (Pensée critique)")
+# Affichage du résultat instantané
+result, score = evaluate_impact(task_automation, creativity, human_interaction, critical_thinking, data_usage)
+st.success(result)
 
-data_usage = st.slider("Utilisation de données : dépendance aux algorithmes et au traitement de grandes quantités d’informations", 0, 10, 5)
-data_usage_ex1 = st.text_input("Exemple 1 (Utilisation de données)")
-data_usage_ex2 = st.text_input("Exemple 2 (Utilisation de données)")
+# Affichage du graphique radar interactif mis à jour en direct
+plot_radar_chart([task_automation, creativity, human_interaction, critical_thinking, data_usage])
 
-if st.button("🔎 Diagnostiquer"):
-    result, score = evaluate_impact(task_automation, creativity, human_interaction, critical_thinking, data_usage)
-    st.subheader("Résultat :")
-    st.write(result)
-    
-    # Afficher les exemples fournis
-    st.subheader("Vos exemples")
-    st.write(f"**Automatisation des tâches** : {task_automation_ex1}, {task_automation_ex2}")
-    st.write(f"**Créativité** : {creativity_ex1}, {creativity_ex2}")
-    st.write(f"**Interaction humaine** : {human_interaction_ex1}, {human_interaction_ex2}")
-    st.write(f"**Pensée critique** : {critical_thinking_ex1}, {critical_thinking_ex2}")
-    st.write(f"**Utilisation de données** : {data_usage_ex1}, {data_usage_ex2}")
-    
-    # Afficher un graphique radar
-    plot_chart([task_automation, creativity, human_interaction, critical_thinking, data_usage])
+st.write("Ajustez les curseurs pour voir comment l'IA impacte votre métier.")
