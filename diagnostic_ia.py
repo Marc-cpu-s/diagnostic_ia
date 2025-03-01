@@ -40,8 +40,14 @@ def load_lottie_file(filepath: str):
         return json.load(f)
 
 # Charger l’animation localement
-lottie_animation = load_lottie_file("animation.json")
+import os
 
+def load_lottie_file():
+    filepath = os.path.join(os.path.dirname(__file__), "animation.json")
+    with open(filepath, "r", encoding="utf-8") as f:
+        return json.load(f)
+
+lottie_animation = load_lottie_file()
 # Afficher l'animation
 st.write("Découvrez à quel point votre métier est exposé à l'automatisation par l'IA.")
 
