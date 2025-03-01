@@ -47,7 +47,24 @@ def load_lottie_file():
     with open(filepath, "r", encoding="utf-8") as f:
         return json.load(f)
 
-lottie_animation = load_lottie_file()
+import os
+import json
+import streamlit as st
+from streamlit_lottie import st_lottie
+
+# Fonction pour charger une animation Lottie locale
+def load_lottie_file():
+    dir_path = os.path.dirname(os.path.abspath(__file__))  # Récupère le bon chemin
+    filepath = os.path.join(dir_path, "animation.json")  # Assure que le fichier est trouvé
+    with open(filepath, "r", encoding="utf-8") as f:
+        return json.load(f)
+
+# Charger l’animation
+try:
+    lottie_animation = load_lottie_file()
+    st_lottie(lottie_animation, speed=1, width=600, height=300, key="intro_animation")
+except FileNotFoundError:
+    st.error("Erreur : Le fichier `animation.json` est introuvable. Vérifiez qu'il est bien uploadé sur GitHub.")
 # Afficher l'animation
 st.write("Découvrez à quel point votre métier est exposé à l'automatisation par l'IA.")
 
