@@ -34,8 +34,6 @@ st.set_page_config(page_title="Impact IA", layout="wide")
 st.title("🔍 Diagnostic interactif de l'impact de l'IA sur votre métier")
 
 # Animation d'introduction
-import animation.json
-
 # Fonction pour charger une animation Lottie locale
 def load_lottie_file(filepath: str):
     with open(filepath, "r") as f:
