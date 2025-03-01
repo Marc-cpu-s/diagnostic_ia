@@ -34,7 +34,17 @@ st.set_page_config(page_title="Impact IA", layout="wide")
 st.title("🔍 Diagnostic interactif de l'impact de l'IA sur votre métier")
 
 # Animation d'introduction
-st_lottie("https://assets9.lottiefiles.com/packages/lf20_t0hblxvz.json", speed=1, width=600, height=300, key="intro_animation")
+import json
+
+# Fonction pour charger une animation Lottie locale
+def load_lottie_file(filepath: str):
+    with open(filepath, "r") as f:
+        return json.load(f)
+
+# Charger l’animation localement
+lottie_animation = load_lottie_file("animation.json")
+
+# Afficher l'animation
 st.write("Découvrez à quel point votre métier est exposé à l'automatisation par l'IA.")
 
 st.subheader("📊 Répondez aux questions pour voir l'impact en temps réel")
